@@ -31,7 +31,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(task, index) in todosFiltered" v-bind:key="index">
+        <tr v-for="(task, index) in todosFiltered" :index="index" :task="task" v-bind:key="task">
           <th id="nameContainer">
             <span :class="{ finished: task.status === 'finished' }">
               <span class="byAuthor">By {{ task.author }}</span>
@@ -40,7 +40,7 @@
           </th>
           <td style="width: 120px">
             <span
-              @click="changeStatus(index)"
+              @click="changeStatus(task)"
               class="pointer"
               :class="{
                 'text-danger': task.status === 'to-do',
@@ -57,12 +57,12 @@
             </div>
           </td>
           <td>
-            <div class="text-center" @click="deleteTask(index)">
+            <div class="text-center" @click="deleteTask(task)">
               <span class="fa fa-trash"></span>
             </div>
           </td>
           <td>
-            <div class="text-center" @click="archiveTask(index)">
+            <div class="text-center" @click="archiveTask(task)">
               <span class="fa fa-save"></span>
             </div>
           </td>
@@ -126,7 +126,6 @@ export default {
   methods: {
     submitTask() {
       if (this.$store.state.task.length === 0) return;
-
       if (this.$store.state.editedTask === null) {
         this.$store.state.tasks.push({
           name: this.$store.state.task,
@@ -135,28 +134,34 @@ export default {
           archived: false,
         });
       } else {
-        this.$store.state.tasks[this.$store.state.editedTask].name =
-          this.$store.state.task;
+        this.$store.state.tasks[this.$store.state.editedTask].name = this.$store.state.task;
         this.$store.state.editedTask = null;
       }
       this.$store.state.task = "";
     },
     deleteTask(index) {
-      this.$store.state.tasks.splice(index, 1);
+            let newIndex = this.$store.state.tasks.indexOf(
+        index
+      );
+     this.$store.state.tasks.splice(newIndex, 1);
+      
     },
     editTask(index) {
       this.$store.state.task = this.$store.state.tasks[index].name;
       this.$store.state.editedTask = index;
     },
     archiveTask(index) {
-      this.$store.state.tasks[index].archived = true;
+      index.archived = true;
+    },
+    doSomething(){
+
     },
     changeStatus(index) {
       let newIndex = this.$store.state.availableStatuses.indexOf(
-        this.$store.state.tasks[index].status
+        index.status
       );
       if (++newIndex > 2) newIndex = 0;
-      this.$store.state.tasks[index].status =
+      index.status =
         this.$store.state.availableStatuses[newIndex];
     },
     firstCharUpper(str) {
